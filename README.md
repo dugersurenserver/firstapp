@@ -1,4 +1,7 @@
-# Суурилуулалтын орчин
+# Системийн орчноо бэлдэх
+
+<details open>
+<summary> 1. Орчноо бэлдэх </summary>
 
 Ubuntu үйлдлийн систем
 
@@ -7,20 +10,52 @@ Ubuntu үйлдлийн систем
 
 DMOJ нь Django framework болон NodeJS дээр ажилладаг тул Python болон NodeJS-г урьдчилан суулгасан байх шаардлагатай. Цаашилбал, кодыг ажиллуулж буй ажлын хуваарьт илгээсэн даалгавруудыг буфер болгохын тулд мессежийн дараалал шаардлагатай тул Redis мэдээллийн санг урьдчилан суулгасан болно.
 
-````
+```
 sudo apt update && sudo apt upgrade -y
 sudo apt install git gcc g++ make python3-dev python3-pip libxml2-dev libxslt1-dev zlib1g-dev gettext curl redis-server -y
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt install nodejs
 sudo npm install -g sass postcss-cli autoprefixer
+```
 
-````
+</details>
 
-# Өгөгдлийн санг суулгаж тохируулна
+---
 
-  Энд Mariadb мэдээллийн санг ашигладаг бөгөөд Ubuntu дээр суулгах нь маш тохиромжтой. Одоогийн Mariadb мэдээллийн санд суулгасны дараа хэрэглэгчээс root нууц үг оруулах шаардлагагүй тул шууд дотоод нэвтрэх нууц үг анхдагчаар хоосон байна.
+<details>
+<summary>Nodejs -ийг суулгах nvm </summary>
 
-````
+
+
+Now, activate all settings using the following command:
+
+```
+source ~/.bashrc
+
+nvm --version
+nvm install node
+node --version
+nvm install node --lts
+nvm install 14.19.1
+node --version
+nvm ls
+nvm ls-remote
+nvm use 14.19.1
+node --version
+nvm run default --version
+
+```
+</details>
+
+
+---
+
+<details>
+<summary> Өгөгдлийн санг суулгах </summary>
+
+ Энд Mariadb мэдээллийн санг ашигладаг бөгөөд Ubuntu дээр суулгах нь маш тохиромжтой. Одоогийн Mariadb мэдээллийн санд суулгасны дараа хэрэглэгчээс root нууц үг оруулах шаардлагагүй тул шууд дотоод нэвтрэх нууц үг анхдагчаар хоосон байна.
+
+```
 sudo apt update
 sudo apt install mariadb-server libmysqlclient-dev -y
 
@@ -29,15 +64,18 @@ mariadb> CREATE DATABASE dmoj DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8
 mariadb> GRANT ALL PRIVILEGES ON dmoj.* to 'dmoj'@'localhost' IDENTIFIED BY 'db123';
 mariadb> exit
 
-````
+```
 
 DMOJ-г зохион бүтээхдээ мэдээллийн сан нь урт индексийг ашигладаг тул мэдээллийн сангийн нэмэлт тохиргоог энд хийх шаардлагатай (албан ёсны баримт бичигт дурдаагүй бөгөөд энэ нь өөр өөр үйлдлийн системтэй холбоотой байж болно). 
 
-````/etc/mysql/mariadb.conf.d/50-server.conf ````
+```
+/etc/mysql/mariadb.conf.d/50-server.conf 
+
+```
 
 файлын innodb тайлбарын байрлалд дараах гурван мөрийг нэмнэ.Өөрчлөлт дууссаны дараа хүчин төгөлдөр болохын тулд Mysql мэдээллийн санг дахин эхлүүлнэ үү. Нэмж дурдахад, дараа нь татаж авсан DMOJ төслийн үндсэн кодын **site/manage.py**  файлд дараах хоёр мөрийг нэмэх хэрэгтэй.
 
-```INI
+```
 [mysqld]
 ...
 
@@ -67,15 +105,30 @@ if __name__ == "__main__":
 
 ```
 
-Төслийн үйл ажиллагааны орчин нь үйлдлийн систем дэх бусад Python төслийн орчинд саад учруулахаас урьдчилан сэргийлэхийн тулд venv хамгаалагдсан хязгаарлагдмал орчинд ашиглах хэрэгслийг ашигладаг. Энэ нь зөвхөн дибаг хийх ажилд ашиглагддаггүй, мөн үйлдвэрлэлд нэвтрүүлэх үед venv хамгаалагдсан хязгаарлагдмал орчны хэрэгслийг ашигладаг. Энд гурван командыг гүйцэтгэсний дараа хамгаалагдсан хязгаарлагдмал орчинд ажиллах горимд орох ба терминалын мөрийн дээд хэсэгт (dmojsite) сануулга гарч ирнэ.
-```
-sudo apt install -y python3-venv
-python3 -m venv dmojsite
-. dmojsite/bin/activate
-```
+</details>
 
 
-# DMOJ суулгаж эхэл
+---
+
+
+
+<details>
+<summary>venv -ийг суулгах</summary>
+
+venv (virtual environment)-ийг суулгах
+
+```
+python3 -m venv venv
+. venv/bin/activate
+```
+
+</details>
+
+---
+
+<details>
+<summary>site -г суулгах</summary>
+
 Кодоо татаж аваад хамаарлыг суулгана уу
 
 Энэ алхам нь DMOJ-ийн үндсэн төслийн кодыг Github-аас локал руу татаж аваад дэд төслийн git tracking, update кодыг нэмэх явдал юм. Хэрэв та шийдвэрийн серверийг Docker-ийн аргаар тохируулахаар шийдсэн бол салбараа солих шаардлагагүй гэдгийг энд тэмдэглэх нь зүйтэй. Үгүй бол та branch солих хэрэгтэй болно.
@@ -90,79 +143,85 @@ pip3 install -r requirements.txt
 pip3 install mysqlclient
 
 ```
+</details>
+
+---
 
 
-# Төслийн тохиргоог өөрчлөх
-   Энэ алхам нь маш чухал бөгөөд төслийн үндсэн код хэвийн ажиллаж чадах эсэхийг тодорхойлдог. Та үндсэн файлуудыг албан ёсны татаж авах хаягаас авах боломжтой, эсвэл миний өгсөн local_setting.py тохиргооны файлыг шууд ашиглаж болно, агуулга нь дараах байдалтай байна.
 
+<details>
+<summary> Тохиргоо хийх local_settings.py</summary>
+
+
+dmoj фолдер дотор дараах файлыг (dmoj/local_settings.py) үүсгэх доторн дараах кодыг оруулна. 
+```
+local_settings.py
+``` 
 
 ```
-
 #####################################
 ########## Django settings ##########
 #####################################
-# See <https://docs.djangoproject.com/en/1.11/ref/settings/>
+# See <https://docs.djangoproject.com/en/3.2/ref/settings/>
 # for more info and help. If you are stuck, you can try Googling about
 # Django - many of these settings below have external documentation about them.
 #
 # The settings listed here are of special interest in configuring the site.
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# You may use <http://www.miniwebtool.com/django-secret-key-generator/>
-# to generate this key.
-#  访问前两行的URL生成一个key
-SECRET_KEY = 'anpsa4ko6^@b5u-)e9gm$vk(=lqb()-%0n@lr5c^=$feq45jdh'
+# You may use this command to generate a key:
+# python3 -c 'from django.core.management.utils import get_random_secret_key;print(get_random_secret_key())'
+SECRET_KEY = 'This key is not very secure and you should change it.'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Үйлдвэрлэлийн орчинд үүнийг худал болгож өөрчлөх ёстой
-DEBUG = False # Change to False once you are done with runserver testing.
+DEBUG = True  # Change to False once you are done with runserver testing.
 
 # Uncomment and set to the domain names this site is intended to serve.
 # You must do this once you set DEBUG to False.
-ALLOWED_HOSTS = ['localhost','dmoj','*]  #Хандалтыг зөвшөөрдөг IP эсвэл домэйн нэрийг тохируулна уу
+ALLOWED_HOSTS = ['dmoj.mn']
 
 # Optional apps that DMOJ can make use of.
 INSTALLED_APPS += (
 )
 
 # Caching. You can use memcached or redis instead.
-# Documentation: <https://docs.djangoproject.com/en/1.11/topics/cache/>
+# Documentation: <https://docs.djangoproject.com/en/3.2/topics/cache/>
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
-    }
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
 }
 
 # Your database credentials. Only MySQL is supported by DMOJ.
-# Documentation: <https://docs.djangoproject.com/en/1.11/ref/databases/>
+# Documentation: <https://docs.djangoproject.com/en/3.2/ref/databases/>
 DATABASES = {
-     'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dmoj',
         'USER': 'dmoj',
-        'PASSWORD': 'db123',  #Өөрийн тохиргоонд өөрчлөлт оруулах шаардлагатай
+        'PASSWORD': 'db123',
         'HOST': '127.0.0.1',
         'OPTIONS': {
             'charset': 'utf8mb4',
             'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
         },
-    }
+    },
 }
 
 # Sessions.
-# Documentation: <https://docs.djangoproject.com/en/1.11/topics/http/sessions/>
+# Documentation: <https://docs.djangoproject.com/en/3.2/topics/http/sessions/>
 #SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Internationalization.
-# Documentation: <https://docs.djangoproject.com/en/1.11/topics/i18n/>
-LANGUAGE_CODE = 'zh-hans'  # Олон улсын жишигт нийцсэн хэлний кодчилол болгон өөрчлөх боломжтой
-DEFAULT_USER_TIME_ZONE = 'Asia/Shanghai'  # цагийн бүсийг тохируулах
+# Documentation: <https://docs.djangoproject.com/en/3.2/topics/i18n/>
+LANGUAGE_CODE = 'en-ca'
+DEFAULT_USER_TIME_ZONE = 'America/Toronto'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
 ## django-compressor settings, for speeding up page load times by minifying CSS and JavaScript files.
-# Documentation: https://django-compressor.readthedocs.io/en/latest/
+# Documentation: <https://django-compressor.readthedocs.io/en/latest/>
 COMPRESS_OUTPUT_DIR = 'cache'
 COMPRESS_CSS_FILTERS = [
     'compressor.filters.css_default.CssAbsoluteFilter',
@@ -176,7 +235,7 @@ STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)
 #########################################
 ########## Email configuration ##########
 #########################################
-# See <https://docs.djangoproject.com/en/1.11/topics/email/#email-backends>
+# See <https://docs.djangoproject.com/en/3.2/topics/email/#email-backends>
 # for more documentation. You should follow the information there to define
 # your email settings.
 
@@ -185,6 +244,7 @@ STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)
 
 # The following block is included for your convenience, if you want
 # to use Gmail.
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 #EMAIL_USE_TLS = True
 #EMAIL_HOST = 'smtp.gmail.com'
 #EMAIL_HOST_USER = '<your account>@gmail.com'
@@ -192,12 +252,12 @@ STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)
 #EMAIL_PORT = 587
 
 # To use Mailgun, uncomment this block.
-# You will need to run `pip install django-mailgun` for to get `MailgunBackend`.
+# You will need to run `pip install django-mailgun` to get `MailgunBackend`.
 #EMAIL_BACKEND = 'django_mailgun.MailgunBackend'
 #MAILGUN_ACCESS_KEY = '<your Mailgun access key>'
 #MAILGUN_SERVER_NAME = '<your Mailgun domain>'
 
-# You can also use Sendgrid, with `pip install sendgrid-django`.
+# You can also use SendGrid, with `pip install sendgrid-django`.
 #EMAIL_BACKEND = 'sgbackend.SendGridBackend'
 #SENDGRID_API_KEY = '<Your SendGrid API Key>'
 
@@ -207,50 +267,46 @@ STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)
 # A tuple of (name, email) pairs that specifies those who will be mailed
 # when the server experiences an error when DEBUG = False.
 ADMINS = (
-    ('zhonger', 'zhonger@lep.ac.cn'),
+    ('Your Name', 'your.email@example.com'),
 )
 
 # The sender for the aforementioned emails.
-SERVER_EMAIL = 'LEPOJ: Modern Online Judge <zhonger@lep.ac.cn>'
+SERVER_EMAIL = 'DMOJ: Modern Online Judge <errors@dmoj.ca>'
 
 
-##################################################
-########### Static files configuration. ##########
-##################################################
-# See <https://docs.djangoproject.com/en/1.11/howto/static-files/>.
+################################################
+########## Static files configuration ##########
+################################################
+# See <https://docs.djangoproject.com/en/3.2/howto/static-files/>.
 
-# Change this to somewhere more permanent., especially if you are using a
+# Change this to somewhere more permanent, especially if you are using a
 # webserver to serve the static files. This is the directory where all the
 # static files DMOJ uses will be collected to.
 # You must configure your webserver to serve this directory as /static/ in production.
-# Энэ сан нь статик файлуудыг хадгалдаг газар юм
-STATIC_ROOT = '/tmp/static/'
+STATIC_ROOT = '/tmp/static'
 
 # URL to access static files.
-#STATIC_URL = '/static/'
-
-#STATICFILES_DIRS = (
-#    os.path.join(BASE_DIR, "static"),
-#)
+STATIC_URL = '/static/'
 
 # Uncomment to use hashed filenames with the cache framework.
-#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.CachedStaticFilesStorage'
+#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 
 ############################################
 ########## DMOJ-specific settings ##########
 ############################################
 
 ## DMOJ site display settings.
-SITE_NAME = 'LEPOJ'
-SITE_LONG_NAME = 'LEPOJ: Modern Online Judge'
-SITE_ADMIN_EMAIL = 'zhonger@lep.ac.cn'
-TERMS_OF_SERVICE_URL = '//oj.lep.ac.cn/tos' # Use a flatpage.
+SITE_NAME = 'DMOJ'
+SITE_LONG_NAME = 'DMOJ: Modern Online Judge'
+SITE_ADMIN_EMAIL = 'admin@example.com'
+TERMS_OF_SERVICE_URL = '//dmoj.ca/tos/'  # Use a flatpage.
 
 ## Bridge controls.
 # The judge connection address and port; where the judges will connect to the site.
 # You should change this to something your judges can actually connect to
 # (e.g., a port that is unused and unblocked by a firewall).
-BRIDGED_JUDGE_ADDRESS = [('localhost', 9999)]  # Ажлын хуваарийн үйлчилгээний тохиргоо
+BRIDGED_JUDGE_ADDRESS = [('localhost', 9999)]
 
 # The bridged daemon bind address and port to communicate with the site.
 #BRIDGED_DJANGO_ADDRESS = [('localhost', 9998)]
@@ -284,10 +340,10 @@ EVENT_DAEMON_POST = 'ws://127.0.0.1:15101/' # үйл явдал илгээх
 #EVENT_DAEMON_POLL = '<public URL to access the HTTP long polling of event server>'
 # i.e. the path to /channels/ exposed by the daemon, through whatever proxy setup you have.
 
-# Using our standard nginx configuration, these should be.
+# Using our standard nginx configuration, these should be:
 EVENT_DAEMON_GET = 'ws://127.0.0.1:15100/event/' # Үйл явдал авах
-#EVENT_DAEMON_GET_SSL = 'wss://<your domain>/event/' # Optional
-EVENT_DAEMON_POLL = '/channels/' # сувгийн нэвтрүүлэг
+#EVENT_DAEMON_GET_SSL = 'wss://<your domain>/event/'  # Optional
+#EVENT_DAEMON_POLL = '/channels/'
 
 # If you would like to use the AMQP-based event server from <https://github.com/DMOJ/event-server>,
 # uncomment this section instead. This is more involved, and recommended to be done
@@ -295,32 +351,31 @@ EVENT_DAEMON_POLL = '/channels/' # сувгийн нэвтрүүлэг
 #EVENT_DAEMON_AMQP = '<amqp:// URL to connect to, including username and password>'
 #EVENT_DAEMON_AMQP_EXCHANGE = '<AMQP exchange to use>'
 
-## celery мессежийн дарааллын үйлчилгээ, тайлбарыг устгах шаардлагатай
-
+## Celery
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379' 
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
 ## CDN control.
-# Base URL for a copy of ace editor.
+# Base URL for a copy of Ace editor.
 # Should contain ace.js, along with mode-*.js.
 ACE_URL = '//cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/'
 JQUERY_JS = '//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js'
 SELECT2_JS_URL = '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js'
 SELECT2_CSS_URL = '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css'
 
-# A map of Earth in Equirectangular projection, for timezone selection.
+# A map of Earth in equirectangular projection, for timezone selection.
 # Please try not to hotlink this poor site.
-TIMEZONE_MAP = 'http://naturalearth.springercarto.com/ne3_data/8192/textures/3_no_ice_clouds_8k.jpg'
+TIMEZONE_MAP = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1024px-Blue_Marble_2002.png'
 
 ## Camo (https://github.com/atmos/camo) usage.
-#DMOJ_CAMO_URL = "<URL to your camo install>"
-#DMOJ_CAMO_KEY = "<The CAMO_KEY environmental variable you used>"
+#DMOJ_CAMO_URL = '<URL to your camo install>'
+#DMOJ_CAMO_KEY = '<The CAMO_KEY environmental variable you used>'
 
 # Domains to exclude from being camo'd.
-#DMOJ_CAMO_EXCLUDE = ("https://dmoj.ml", "https://dmoj.ca")
+#DMOJ_CAMO_EXCLUDE = ('https://dmoj.ml', 'https://dmoj.ca')
 
 # Set to True to use https when dealing with protocol-relative URLs.
-# See <http://www.paulirish.com/2010/the-protocol-relative-url/> for what they are.
+# See <https://www.paulirish.com/2010/the-protocol-relative-url/> for what they are.
 #DMOJ_CAMO_HTTPS = False
 
 # HTTPS level. Affects <link rel='canonical'> elements generated.
@@ -337,11 +392,11 @@ TIMEZONE_MAP = 'http://naturalearth.springercarto.com/ne3_data/8192/textures/3_n
 # Should be an internal location mapped to the above directory.
 #DMOJ_PDF_PROBLEM_INTERNAL = '/pdfcache'
 
-# Enable Selenium PDF generation
+# Enable Selenium PDF generation.
 #USE_SELENIUM = True
 
 ## Data download settings.
-# Uncomment to allow users to download their data
+# Uncomment to allow users to download their data.
 #DMOJ_USER_DATA_DOWNLOAD = True
 
 # Directory to cache user data downloads.
@@ -351,13 +406,14 @@ TIMEZONE_MAP = 'http://naturalearth.springercarto.com/ne3_data/8192/textures/3_n
 # Path to use for nginx's X-Accel-Redirect feature.
 # Should be an internal location mapped to the above directory.
 #DMOJ_USER_DATA_INTERNAL = '/datacache'
+
 # How often a user can download their data.
 #DMOJ_USER_DATA_DOWNLOAD_RATELIMIT = datetime.timedelta(days=1)
 
 
 ## ======== Logging Settings ========
-# Documentation: https://docs.djangoproject.com/en/1.9/ref/settings/#logging
-#                https://docs.python.org/2/library/logging.config.html#logging-config-dictschema
+# Documentation: https://docs.djangoproject.com/en/3.2/ref/settings/#logging
+#                https://docs.python.org/3/library/logging.config.html#configuration-dictionary-schema
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -370,7 +426,7 @@ LOGGING = {
         },
     },
     'handlers': {
-        # You may use this handler as example for logging to other files..
+        # You may use this handler as an example for logging to other files.
         'bridge': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -402,7 +458,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        # Catch all log to stderr.
+        # Catch all logs to stderr.
         '': {
             'handlers': ['console'],
         },
@@ -425,373 +481,19 @@ LOGGING = {
 #SOCIAL_AUTH_FACEBOOK_SECRET = ''
 #SOCIAL_AUTH_GITHUB_SECURE_KEY = ''
 #SOCIAL_AUTH_GITHUB_SECURE_SECRET = ''
-#SOCIAL_AUTH_DROPBOX_OAUTH2_KEY = ''
-#SOCIAL_AUTH_DROPBOX_OAUTH2_SECRET = ''
 
 ## ======== Custom Configuration ========
-# You may add whatever django configuration you would like here.
+# You may add whatever Django configuration you would like here.
 # Do try to keep it separate so you can quickly patch in new settings.
 
-
-```
-
-Энэ алхамд та зөвхөн програмын түлхүүр, өгөгдлийн сангийн нууц үг, хэл, цагийн бүс, сайтын үндсэн мэдээллийг өөрчлөх шаардлагатай бөгөөд бусад Хятад тэмдэглэсэн газруудыг дараагийн алхмуудад өөрчлөх боломжтой. Өөрчлөлт хийж дууссаны дараа баталгаажуулахын тулд дараах тушаалыг гүйцэтгэнэ.
-
-```
-python3 manage.py check  
-
-```
-
-Статик файл үүсгэх
-
-Энэ алхам нь /tmp/static/ сан дахь төсөлд шаардлагатай статик файлуудыг үүсгэж оновчтой болгоно.
-
-```
-./make_style.sh
-python3 manage.py collectstatic
-python3 manage.py compilemessages
-python3 manage.py compilejsi18n
-
-```
-Өгөгдлийн сангийн хүснэгтийг импортлох
-
-
-```
-# Бүх хүснэгтийг шилжүүлэх
-python3 manage.py migrate
-
-# Туршилтын өгөгдөл болон тохиргоог импортлох
-python3 manage.py loaddata navbar
-python3 manage.py loaddata language_small
-python3 manage.py loaddata demo
-
-# Администратор хэрэглэгч үүсгэх, та хэрэглэгчийн нэр, имэйл, нууц үг оруулах шаардлагатай
-python3 manage.py createsuperuser
-
-```
-
-Celery
-```
-# redis ийг эхлүүлэх
-sudo service redis-server start
-
-# Төслийн тохиргооны файл дахь Celery тохиргооноос тайлбарыг устгаж үр дүнтэй болгох
-
-# Төслийн үндсэн кодыг турших
-python3 manage.py runserver 0.0.0.0:8000
-
-# Өмнөх алхмыг амжилттай гүйцэтгэсний дараа төлөвлөгчийг ажиллуул, хэрэв арван секундын дотор цуурай гарахгүй бол ctrl+c зогсоно.
-python3 manage.py runbridged
-
-# Celery даалгаврын дарааллыг ажиллуул, ямар ч алдаа байхгүй
-pip3 install redis
-celery -A dmoj_celery worker
-
-```
-
-# uwsgi-г тохируулах
-
-Бидний мэдэж байгаагаар uwsgi бол Python вэб төслүүдийн урт хугацааны туршид хэрэгжих хэрэгсэл юм. Энд байгаа тохиргооны файлыг сайтын лавлахад байрлуулсан бөгөөд албан ёсны татаж авах хаяг бөгөөд миний өгсөн тохиргооны файлыг бас ашиглаж болно.
-
-```
-[uwsgi]
-# Socket and pid file location/permission.
-uwsgi-socket = /tmp/dmoj-site.sock
-chmod-socket = 666
-pidfile = /tmp/dmoj-site.pid
-
-# You should create an account dedicated to running dmoj under uwsgi.
-# Хэрэглэгчийн зөвшөөрөл болон фолдерын зөвшөөрлөөс үүдэн ажиллах алдаа гарахаас зайлсхийхийн тулд энд анхдагч хэрэглэгчээр тохируулсан
-
-uid = ubuntu
-gid = ubuntu
-
-# Paths. Энд байгаа гурван санг харгалзах лавлах болгон өөрчлөх шаардлагатай
-chdir = /home/ubuntu/site/  
-pythonpath = /home/ubuntu/site/  
-virtualenv = /home/ubuntu/dmojsite/ 
-
-# Details regarding DMOJ application.
-protocol = uwsgi
-master = true
-env = DJANGO_SETTINGS_MODULE=dmoj.settings
-module = dmoj.wsgi:application
-optimize = 2
-
-# Scaling settings. Tune as you like.
-memory-report = true
-cheaper-algo = backlog
-cheaper = 3
-cheaper-initial = 5
-cheaper-step = 1
-cheaper-rss-limit-soft = 201326592
-cheaper-rss-limit-hard = 234881024
-workers = 7
-
-```
-
-
-```
-# хамаарлыг суулгах
-pip3 install uwsgi
-
-# Тохиргооны файл хүчинтэй эсэхийг шалгана уу
-uwsgi --ini uwsgi.ini
-
-```
-
-Гүйцэтгэсэн командын цуурайг эндээс шалгана уу, ямар ч алдаа мэдээлээгүй бөгөөд ажилчдыг хэвийн ажиллуулж болно. Энэ нь бүрэн үр дүнтэй эсэхийг шалгахын тулд nginx-ийн дараагийн тохиргоог хүлээх хэрэгтэй.
-
-
-Үнэн хэрэгтээ дээрх алхмууд нь Mysql мэдээллийн сан, uwsgi ажиллаж байгаа төслийн үндсэн код, ажлын дараалал Celery, Bridged ажлын хуваарь зэрэг DMOJ-ийн маш чухал хэд хэдэн хэсгүүдийг суулгаж дуусгасан. Гэхдээ мэдээллийн сан нь үргэлж ар талд хадгалагддагаас бусад гурван зүйл нь урд талд ажилладаг тул та тэдгээрийг арын дэвсгэр дээр удирдахын тулд супервайзер ашиглах хэрэгтэй.
-
-
-```
-# supervisord суулгах
-sudo apt install supervisor -y
-
-```
-
-
-Суулгаж дууссаны дараа дараах гурван тохиргооны файлыг /etc/supervisor/conf.d/ файлын санд байрлуулна. Хэрэглэгчийн зөвшөөрөл болон фолдерын зөвшөөрлөөс шалтгаалж ажиллахад алдаа гарахаас зайлсхийхийн тулд програмыг энд ажиллуулах анхны хэрэглэгчээр тохируулсан.
-
-
-```
-# site.conf
-[program:site]
-command=/home/ubuntu/dmojsite/bin/uwsgi --ini uwsgi.ini
-directory=/home/ubuntu/site/
-stopsignal=QUIT
-stdout_logfile=/tmp/site.stdout.log
-stderr_logfile=/tmp/site.stderr.log
-
-```
-
-
-```
-# bridged.conf
-[program:bridged]
-command=/home/ubuntu/dmojsite/bin/python manage.py runbridged
-directory=/home/ubuntu/site/
-stopsignal=INT
-# You should create a dedicated user for the bridged to run under.
-user=ubuntu
-group=ubuntu
-stdout_logfile=/tmp/bridge.stdout.log
-stderr_logfile=/tmp/bridge.stderr.log
-
-```
-
-```
-# celery.conf
-[program:celery]
-command=/home/ubuntu/dmojsite/bin/celery -A dmoj_celery worker
-directory=/home/ubuntu/site/
-# You should create a dedicated user for celery to run under.
-user=ubuntu
-group=ubuntu
-stdout_logfile=/tmp/celery.stdout.log
-stderr_logfile=/tmp/celery.stderr.log
-
-```
-
-```
-# 更新supervisord监控列表并查询状态，但均为running是正常运行
-sudo supervisorctl update
-sudo supervisorctl status
-
-```
-# nginx  -ийг суулгаж тохируулах
-
-```
-# nginx суулгах
-sudo apt install nginx -y
-
-```
-
-/etc/nginx/sites-available/default-г устгаад ижил нэртэй шинэ файл үүсгээд дараах агуулгыг бөглөнө үү.
-
-
-```
-
-server {
-    listen       80;
-    listen       [::]:80;
-
-    # Change port to 443 and do the nginx ssl stuff if you want it.
-
-    # Change server name to the HTTP hostname you are using.
-    # You may also make this the default server by listening with default_server,
-    # if you disable the default nginx server declared.
-    server_name dmoj;
-
-    add_header X-UA-Compatible "IE=Edge,chrome=1";
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-
-    charset utf-8;
-    try_files $uri @icons;
-    error_page 502 504 /502.html;
-
-    location ~ ^/502\.html$|^/logo\.png$|^/robots\.txt$ {
-        root /home/ubuntu/site/;
-    }
-
-    location @icons {
-        root /home/ubuntu/site/resources/icons;
-        error_page 403 = @uwsgi;
-        error_page 404 = @uwsgi;
-    }
-
-    location @uwsgi {
-        uwsgi_read_timeout 600;
-        # Change this path if you did so in uwsgi.ini
-        uwsgi_pass unix:///tmp/dmoj-site.sock;
-        include uwsgi_params;
-        uwsgi_param SERVER_SOFTWARE nginx/$nginx_version;
-    }
-
-    location /static {
-        gzip_static on;
-        expires max;
-        #root /tmp/static/;
-        # Comment out root, and use the following if it doesn't end in /static.
-        alias /tmp/static/; # Үндсэн төслийн статик файлын хаягийг тохируулна уу
-    }
-
-    # Uncomment if you are using PDFs and want to serve it faster.
-    # This location name should be set to DMOJ_PDF_PROBLEM_INTERNAL.
-    #location /pdfcache {
-    #    internal;
-    #    root <path to pdf cache diretory, without the final /pdfcache>;
-    #    # Default from docs:
-    #    #root /home/dmoj-uwsgi/;
-    #}
-
-    # Uncomment if you are allowing user data downloads and want to serve it faster.
-    # This location name should be set to DMOJ_USER_DATA_INTERNAL.
-    #location /datacache {
-    #    internal;
-    #    root <path to data cache diretory, without the final /datacache>;
-    #
-    #    # Default from docs:
-    #    #root /home/dmoj-uwsgi/;
-    #}
-
-    # Uncomment these sections if you are using the event server.
-    location /event/ {
-        proxy_pass http://127.0.0.1:15100/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_read_timeout 86400;
-    }
-
-    location /channels/ {
-        proxy_read_timeout          120;
-        proxy_pass http://127.0.0.1:15102;
-    }
-}
-
-
-```
-
-
-```
-# Nginx тохиргооны файлыг туршиж үзээд дахин эхлүүлэх
-sudo nginx -t
-sudo nginx -s reload
-
-
-```
-
-# event тохиргоо
-
-Дараах контент бүхий шинэ site/websocket/config.js файл үүсгэнэ үү. Мөн энэ файлын дагуу nginx тохиргооны файл дахь үйл явдал, сувгийн холбогдох портуудыг өөрчил. Үүний зэрэгцээ local_setting.py файл дахь EVENT_DAEMON_POST, EVENT_DAEMON_GET болон EVENT_DAEMON_POLL гэсэн гурван хувьсагчийн утгыг өөрчил.
-
-```
-module.exports = {
-    get_host: '127.0.0.1',
-    get_port: 15100,
-    post_host: '127.0.0.1',
-    post_port: 15101,
-    http_host: '127.0.0.1',
-    http_port: 15102,
-    long_poll_timeout: 29000,
-};
-
-
 ```
 
 
 
-```
+</details>
 
-# ws хамаарлыг суулгана
-npm install qu ws simplesets
-pip3 install websocket-client
-
-# Өөрчлөгдсөн тохиргоог хүчин төгөлдөр болгохын тулд програмыг дахин эхлүүлнэ үү
-sudo supervisorctl update
-sudo supervisorctl restart bridged
-sudo supervisorctl restart site
-sudo nginx -s reload
-
-
-```
-
-
-# judge серверийг суулгана уу
-Шүүлтийн арын хэсгийг суулгана уу
-
-
-```
-
-sudo apt install python3-dev python3-pip build-essential libseccomp-dev -y
-pip3 install dmoj
-
-
-```
-
-Шүүлтийн систем нь шүүлтийн хэлийг дэмждэг
-
-
-```
-dmoj-autoconf # Гүйцэтгэлийн дараа дэмжигдсэн ажиллах хугацаа хэвлэгдэх болно
-
-# Шинээр үүсгэсэн judge.yml файлын ажиллах цагийн хэсэг рүү дөнгөж хэвлэсэн ажиллах цагийг хуулна
-# Энд байгаа id болон түлхүүрийн тохиргоо нь арын удирдлагын интерфейс дэх шүүлтийн серверийн тохиргоотой нийцэж болно.
-id: <judge name>
-key: <judge authentication key>
-problem_storage_root:
-  - /home/ubunut/problem
-runtime:
-  ...
-
-
-
-```
-
-supervisord тохиргоо
+---
 
 
 
 
-```
-# judge.conf
-[program:judge]
-command=/home/ubuntu/dmojsite/bin/dmoj -c judge.yml localhost
-directory=/home/ubuntu/site/
-stopsignal=QUIT
-stdout_logfile=/tmp/site.stdout.log
-stderr_logfile=/tmp/site.stderr.log
-
-```
-
-
-Тохиргоог шинэчилж, хүчин төгөлдөр болохын тулд sudo supervisord шинэчлэлтийг ашиглан шүүлтийн серверийн онлайн статус арын удирдлагын интерфейс дээр онлайн байгааг олж мэдээрэй.
-
-
-Баталгаажуулалт, дүгнэлт
-
-   Энэ үед DMOJ-г суулгаж дуусна. Суулгах процессын үүднээс авч үзвэл OJ систем нь маш олон бүрэлдэхүүн хэсгүүдийг агуулдаг бөгөөд янз бүрийн тохиргоонууд нь нааш цааш өөрчлөгддөг.Хүмүүс санамсаргүйгээр тодорхой тохиргоог орхиж, програмыг хэвийн ажиллуулах боломжгүй болгодог. Мэдээж туршилтын явцад хэвийн ажиллаж болох ч supervisord болон nginx ашигласны дараа гэнэт ажиллахгүй. Дадлага хийх явцад, хэрэглэгчдийн өгсөн албан ёсны өөр өөр програмууд нь файлын зөвшөөрөл хангалтгүй, улмаар програм ажиллах боломжгүй болж магадгүй гэсэн асуудал надад гүн гүнзгий санагдаж байна. Удаан хугацаанд шидсэний эцэст аль алхмууд нь дутуу эсвэл файлын зам буруу байгааг олж мэдэхээ больсон.Дараа нь төслийн үндсэн лавлах нь гүйцэтгэх зөвшөөрөлгүй байсныг олж мэдсэн бөгөөд энэ нь хэд хэдэн асуудал үүсгэх болно. Хэрэв та хэрэглэгчийн удирдлага, файлын зөвшөөрлийн аюулгүй байдлын менежментийн талаар сайн ойлголттой бол түүнийг тохируулах албан ёсны практикийг дагаж мөрдөх ёстой бөгөөд энэ нь үйлдлийн системийн аюулгүй байдлыг хангаж чадна.
