@@ -495,5 +495,567 @@ LOGGING = {
 ---
 
 
+<details>
+<summary>Ажиллаж байгаа эсэхийг</summary>
+
+**Ажиллаж байгаа эсэхийг**
+local_settings.py -ийг нэмээд дараа нь шалгаж үзэх
+
+```
+python3 manage.py check
+```
+</details>
+
+---
 
 
+<details>
+<summary>static файлуудыг бүрдүүлэх</summary>
+
+**Ажиллаж байгаа эсэхийг**
+local_settings.py -ийг нэмээд дараа нь шалгаж үзэх
+
+```
+./make_style.sh
+python3 manage.py collectstatic
+python3 manage.py compilemessages
+python3 manage.py compilejsi18n
+python3 manage.py migrate
+
+python3 manage.py loaddata navbar
+python3 manage.py loaddata language_small
+python3 manage.py loaddata demo
+
+python3 manage.py createsuperuser
+
+```
+</details>
+
+---
+
+
+
+<details>
+<summary>Setting up Celery</summary>
+
+The DMOJ uses Celery workers to perform most of its heavy lifting, such as batch rescoring submissions. We will use Redis as its broker, though note that other brokers that Celery supports will work as well.
+
+Start up the Redis server, which is needed by the Celery workers.
+
+```
+service redis-server start
+```
+
+
+Configure local_settings.py by uncommenting CELERY_BROKER_URL and CELERY_RESULT_BACKEND. By default, Redis listens on localhost port 6379, which is reflected in local_settings.py. You will need to update the addresses if you changed Redis's settings.
+
+We will test that Celery works soon.
+
+</details>
+
+---
+
+
+
+<details>
+<summary>Running the server</summary>
+
+At this point, you should attempt to run the server, and see if it all works.
+
+```
+python3 manage.py runserver 0.0.0.0:8000
+```
+
+
+You should Ctrl-C to exit after verifying.
+
+Do not use runserver in production!
+
+We will set up a proper webserver using nginx and uWSGI soon.
+
+You should also test to see if bridged runs.
+
+```
+python3 manage.py runbridged
+```
+
+
+If there are no errors after about 10 seconds, it probably works. You should Ctrl-C to exit.
+
+Next, test that the Celery workers run.
+
+```
+celery -A dmoj_celery worker
+```
+You can Ctrl-C to exit.
+</details>
+
+---
+
+
+
+<details>
+<summary>Setting up uWSGI</summary>
+
+runserver is insecure and not meant for production workloads, and should not be used beyond testing. In the rest of this guide, we will be installing uwsgi and nginx to serve the site, using supervisord to keep site and bridged running. It's likely other configurations may work, but they are unsupported.
+
+First, copy our uwsgi.ini (link). You should change the paths to reflect your install.
+
+You need to install uwsgi.
+
+
+```
+django-admin startproject main_project
+```
+
+
+uwsgi.ini - файлыг site үндсэн фолдер дотор үүсгэх
+```
+uwsgi.ini
+```
+
+Дараах тохиргооны хэсгийг хуулах
+
+```
+[uwsgi]
+# Socket and pid file location/permission.
+uwsgi-socket = /tmp/dmoj-site.sock
+chmod-socket = 666
+pidfile = /tmp/dmoj-site.pid
+
+# You should create an account dedicated to running dmoj under uwsgi.
+#uid = dmoj-uwsgi
+#gid = dmoj-uwsgi
+
+# Paths.
+chdir = /home/bd/mysystem/site
+pythonpath = /home/bd/mysystem/venv
+virtualenv = /home/bd/mysystem/venv
+
+# Details regarding DMOJ application.
+protocol = uwsgi
+master = true
+env = DJANGO_SETTINGS_MODULE=dmoj.settings
+module = dmoj.wsgi:application
+optimize = 2
+
+# Scaling settings. Tune as you like.
+memory-report = true
+cheaper-algo = backlog
+cheaper = 3
+cheaper-initial = 5
+cheaper-step = 1
+cheaper-rss-limit-soft = 201326592
+cheaper-rss-limit-hard = 234881024
+workers = 7
+```
+
+
+
+sudo service redis-server start
+
+#将项目配置文件中Celery配置去除注释使其生效
+
+# 测试运行主项目代码
+python3 manage.py runserver 0.0.0.0:8000
+
+# 运行上一步成功后，运行调度程序，十秒内无任何回显则ctrl+c中止
+python3 manage.py runbridged
+
+# 运行Celery任务队列，无错误回显即可
+pip3 install redis
+celery -A dmoj_celery worker
+
+</details>
+
+---
+
+
+
+
+<details>
+<summary>2. ?????????</summary>
+
+???????
+
+**Жишээ нь:**
+
+```
+django-admin startproject main_project
+```
+</details>
+
+---
+
+
+
+
+<details>
+<summary>hosts  үүсгэх</summary>
+
+
+**hosts  үүсгэх**
+
+```
+nano /etc/hosts
+```
+
+Үүгэх домэйн нэрээ зааж өгнө.
+
+
+```
+127.0.0.1 dmoj.mn
+
+```
+</details>
+
+---
+
+
+
+
+<details>
+<summary>nginx-ийг суулгах тохируулах</summary>
+
+nginx-ийг суулгах 
+
+```
+apt install nginx
+```
+
+proxy  - серверийн тохиргоо хийх
+
+Үүний тулд root эрхээр орж тохиргоо хийх хэрэгтэй
+
+```
+sudo su
+
+cd /etc/nginx/conf.d
+
+sudo nano /etc/nginx/sites-available/dmoj.mn
+```
+
+Дотор нь дараах кодыг оруулж өгнө.
+
+
+```
+server {
+    listen       80;
+    listen       [::]:80;
+
+    # Change port to 443 and do the nginx ssl stuff if you want it.
+
+    # Change server name to the HTTP hostname you are using.
+    # You may also make this the default server by listening with default_server,
+    # if you disable the default nginx server declared.
+    server_name dmoj.mn;
+
+    add_header X-UA-Compatible "IE=Edge,chrome=1";
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    charset utf-8;
+    try_files $uri @icons;
+    error_page 502 504 /502.html;
+
+    location ~ ^/502\.html$|^/logo\.png$|^/robots\.txt$ {
+        root /home/bd/mysystem/site;
+    }
+
+    location @icons {
+        root /home/bd/mysystem/site/resources/icons;
+        error_page 403 = @uwsgi;
+        error_page 404 = @uwsgi;
+    }
+
+    location @uwsgi {
+        uwsgi_read_timeout 600;
+        # Change this path if you did so in uwsgi.ini
+        uwsgi_pass unix:///tmp/dmoj-site.sock;
+        include uwsgi_params;
+        uwsgi_param SERVER_SOFTWARE nginx/$nginx_version;
+    }
+
+    location /static {
+        gzip_static on;
+        expires max;
+        #root /tmp/static/;
+        # Comment out root, and use the following if it doesn't end in /static.
+        alias /tmp/static/; # 配置主项目的静态文件地址
+    }
+
+    # Uncomment if you are using PDFs and want to serve it faster.
+    # This location name should be set to DMOJ_PDF_PROBLEM_INTERNAL.
+    #location /pdfcache {
+    #    internal;
+    #    root <path to pdf cache diretory, without the final /pdfcache>;
+    #    # Default from docs:
+    #    #root /home/dmoj-uwsgi/;
+    #}
+
+    # Uncomment if you are allowing user data downloads and want to serve it faster.
+    # This location name should be set to DMOJ_USER_DATA_INTERNAL.
+    #location /datacache {
+    #    internal;
+    #    root <path to data cache diretory, without the final /datacache>;
+    #
+    #    # Default from docs:
+    #    #root /home/dmoj-uwsgi/;
+    #}
+
+    # Uncomment these sections if you are using the event server.
+    location /event/ {
+        proxy_pass ;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400;
+    }
+
+    location /channels/ {
+        proxy_read_timeout          120;
+        proxy_pass ;
+    }
+}
+
+```
+
+Тухайн домэйн хаягийг бүртгэх
+
+```
+sudo ln -s /etc/nginx/sites-available/dmoj.mn /etc/nginx/sites-enabled/
+```
+
+Алдаа гарсан эсэхийг шалгах
+
+```
+sudo nginx -t
+```
+
+nginx системийг дахин эхлүүлэх
+
+```
+sudo systemctl restart nginx
+```
+</details>
+
+---
+
+
+<details>
+<summary>websocket-client-ийг тохируулах</summary>
+
+
+npm install qu ws simplesets
+pip3 install websocket-client
+
+# 重启程序使修改的配置生效
+sudo supervisorctl update
+sudo supervisorctl restart bridged
+sudo supervisorctl restart site
+sudo nginx -s reload
+
+</details>
+
+
+
+<details>
+<summary>Тохиргоо хийх</summary>
+
+
+Тохиргооны файлыг дараах байдлаар тохируулна
+
+```
+location /event/ {
+        proxy_pass http://127.0.0.1:15100/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400;
+    }
+
+    location /channels/ {
+        proxy_read_timeout          120;
+        proxy_pass http://127.0.0.1:15102;
+    }
+}
+
+```
+</details>
+
+---
+
+
+
+
+<details>
+<summary>site, celery, bridged config</summary>
+
+root хэрэглэгчээр орж дараах фолдер дотор 3 файл үүсгэнэ
+```
+cd /etc/supervisor/conf.d
+
+ls
+```
+Файлаа үүсгэх
+```
+nano site.conf
+```
+virtual орныг бүрдүүлсэн зам  
+```
+/home/bd/mysystem/venv
+
+```
+сайтыг суулгасан үндсэн зам 2ыг тохируулж өгнө.
+```
+/home/bd/mysystem/site
+```
+
+
+```
+[program:site]
+command=/home/bd/mysystem/venv/bin/uwsgi --ini uwsgi.ini
+directory=/home/bd/mysystem/site
+stopsignal=QUIT
+stdout_logfile=/tmp/site.stdout.log
+stderr_logfile=/tmp/site.stderr.log
+
+```
+
+
+bridged.conf  -ийг тохируулах
+
+```
+nano bridged.conf
+```
+Энд сайтын зам болон виртуал орчны замыг тохируулахаас гадна
+
+идэвхитэй хэрэглэгчийн нэр root нэрийг зааж өгнө
+```
+[program:bridged]
+command=/home/bd/mysystem/venv/bin/python manage.py runbridged
+directory=/home/bd/mysystem/site
+stopsignal=INT
+# You should create a dedicated user for the bridged to run under.
+user=bd
+group=root
+stdout_logfile=/tmp/bridge.stdout.log
+stderr_logfile=/tmp/bridge.stderr.log
+```
+
+celery.conf -ийг тохируулж өгнө.
+```
+nano celery.conf
+```
+
+```
+[program:celery]
+command=/home/bd/mysystem/venv/bin/celery -A dmoj_celery worker
+directory=/home/bd/mysystem/site
+# You should create a dedicated user for celery to run under.
+user=bd
+group=root
+stdout_logfile=/tmp/celery.stdout.log
+stderr_logfile=/tmp/celery.stderr.log
+```
+
+Тохиргоо хийж дууссаны дараа дараах командуудыг ажиллуулж хэвийн эсэхийг шалгана.
+
+```
+supervisorctl update
+supervisorctl status
+
+
+nginx -t
+service nginx reload
+
+
+```
+</details>
+
+---
+
+
+
+# Серверийг суулгах
+
+
+<details>
+<summary>2. ?????????</summary>
+
+Сервер суулгах
+
+```
+sudo apt install python3-dev python3-pip build-essential libseccomp-dev -y
+pip3 install dmoj
+```
+
+
+Дараах командыг өгснөөр тохиргоонуудыг автоматаар хийх ёстой
+```
+dmoj-autoconf
+```
+</details>
+
+---
+
+
+
+
+<details>
+<summary>Docker-compose -ийг суулгах</summary>
+
+
+```
+sudo curl -sSL https://get.daocloud.io/docker | sh
+sudo curl -sSL get.docker.com | sh
+```
+</details>
+
+---
+
+
+
+
+<details>
+<summary>judge - ийг суулгах</summary>
+
+
+```
+git clone --recursive https://github.com/DMOJ/judge.git
+cd judge/.docker
+make judge-tier1
+docker run \
+    -v /mnt/problems:/problems \
+    --cap-add=SYS_PTRACE \
+    dmoj/judge-tier1:latest \
+    cli -c /problems/judge.yml
+
+```
+</details>
+
+---
+
+
+
+
+
+id: firstJudge
+key: k6szBqoq9+ETKfuYW5dIQOiP0mpQVEaXGPQfOWp2glE8V36P3luhQzaBzNpCIc/89Tcku0JEcUAMVniJB3XI9BXzL3SNUKkIS+Jy
+problem_storage_root:
+  - /home/ubunut/problem
+runtime:
+
+
+
+
+
+docker run \
+    --name firstJudge \
+    -p 127.0.0.1:9998:9998 \
+    -v /mnt/problems:/problems \
+    --cap-add=SYS_PTRACE \
+    -d \
+    --restart=always \
+    dmoj/judge-tier1:latest \
+    run 127.0.0.1 
