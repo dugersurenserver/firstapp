@@ -1062,7 +1062,7 @@ docker run \
 
     
     
-    
+    https://sibunglon.com/2020/07/26/database-returned-an-invalid-value-in-queryset.datetimes/
     
     ```
     mysql_tzinfo_to_sql /usr/share/zoneinfo | sed -e "s/Local time zone must be set--see zic manual page/local/" | mysql -u root mysql
