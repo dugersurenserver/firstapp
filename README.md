@@ -1071,3 +1071,11 @@ docker run \
     
     
     DMOJ_PROBLEM_DATA_ROOT = "/mnt/problems"
+    
+    
+    
+    
+    netstat -tulnp | grep LISTEN
+    
+    
+    
